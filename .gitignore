@@ -50,10 +50,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# host
-Debug
-Release
-
 # VDS
 *.vs
 eboot.bin
@@ -62,3 +58,4 @@ param.sfo
 param2.sfo
 PSVita_Debug
 PSVita_Release
+module
