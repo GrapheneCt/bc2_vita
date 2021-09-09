@@ -26,6 +26,9 @@
     <ClCompile Include="fs_overlay.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dialog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -56,6 +59,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fs_overlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

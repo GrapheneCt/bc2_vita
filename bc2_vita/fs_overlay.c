@@ -1,4 +1,4 @@
-/* symtable.c -- create filesystem overlay for safe operation
+/* fs_overlay.c -- create filesystem overlay for safe operation
  *
  * Copyright (C) 2021 GrapheneCt
  *

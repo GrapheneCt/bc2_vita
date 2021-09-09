@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dialog.c" />
     <ClCompile Include="fs_overlay.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="so_util.c" />
@@ -20,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="al_error.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="dialog.h" />
     <ClInclude Include="elf.h" />
     <ClInclude Include="fs_overlay.h" />
     <ClInclude Include="main.h" />
@@ -67,7 +69,7 @@
       <AdditionalIncludeDirectories>$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\user;$(SCE_PSP2_SDK_DIR)\target\include\vdsuite\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>-lGLESv1_CM_stub_weak;-lIMGEGL_stub_weak;-lgpu_es4_ext_stub_weak;-lScePsp2Compat_stub_weak;-lposix_stub_weak;-lSceNet_stub_weak;-lSceSysmem_stub;-lScePower_stub;-lSceDisplay_stub;-lSceTouch_stub;-lSceCtrl_stub;-lSceAudio_stub;-lSceLibRng_stub;-lSceSysmodule_stub;-lSceFios2Kernel02_stub;-lkubridge_stub;-lgcc_sfp;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lGLESv1_CM_stub_weak;-lIMGEGL_stub_weak;-lgpu_es4_ext_stub_weak;-lScePsp2Compat_stub_weak;-lposix_stub_weak;-lSceNet_stub_weak;-lSceIncomingDialog_stub;-lSceSysmem_stub;-lScePower_stub;-lSceDisplay_stub;-lSceTouch_stub;-lSceCtrl_stub;-lSceAudio_stub;-lSceLibRng_stub;-lSceSysmodule_stub;-lSceFios2Kernel02_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceVshBridge_stub;-lkubridge_stub;-lSceCes;-lgcc_sfp;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -81,7 +83,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SCE_PSP2_SDK_DIR)\target\lib\vdsuite;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>-lGLESv1_CM_stub_weak;-lIMGEGL_stub_weak;-lgpu_es4_ext_stub_weak;-lScePsp2Compat_stub_weak;-lposix_stub_weak;-lSceNet_stub_weak;-lSceDisplay_stub;-lSceSysmem_stub;-lScePower_stub;-lSceTouch_stub;-lSceCtrl_stub;-lSceAudio_stub;-lSceLibRng_stub;-lSceSysmodule_stub;-lSceFios2Kernel02_stub;-lkubridge_stub;-lgcc_sfp;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>-lGLESv1_CM_stub_weak;-lIMGEGL_stub_weak;-lgpu_es4_ext_stub_weak;-lScePsp2Compat_stub_weak;-lposix_stub_weak;-lSceNet_stub_weak;-lSceIncomingDialog_stub_weak;-lSceDisplay_stub;-lSceSysmem_stub;-lScePower_stub;-lSceTouch_stub;-lSceCtrl_stub;-lSceAudio_stub;-lSceLibRng_stub;-lSceSysmodule_stub;-lSceFios2Kernel02_stub;-lSceAppMgr_stub;-lSceAppMgrUser_stub;-lSceVshBridge_stub;-lkubridge_stub;-lSceCes;-lgcc_sfp;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />

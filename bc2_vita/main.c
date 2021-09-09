@@ -38,6 +38,8 @@
 #include "config.h"
 #include "so_util.h"
 #include "fs_overlay.h"
+#include "dialog.h"
+#include "al_error.h"
 
 static uintptr_t *functable = NULL;
 
@@ -292,11 +294,8 @@ int main_thread(SceSize args, void *argp)
 
 	PVRSRVInitializeAppHint(&hint);
 
-	hint.bDisableHWTextureUpload = 1;
-	hint.bDisableHWTQBufferBlit = 1;
-	hint.bDisableHWTQNormalBlit = 1;
-	hint.bDisableHWTQTextureUpload = 1;
 	hint.ui32UNCTexHeapSize = 60 * 1024 * 1024;
+	hint.ui32CDRAMTexHeapSize = 96 * 1024 * 1024;
 
 	PVRSRVCreateVirtualAppHint(&hint);
 
@@ -357,7 +356,7 @@ typedef struct {
 int krm__krt__io__CPath__IsRoot(CPath **this)
 {
 	char *path = (*this)->path;
-	if (strcmp(path, "ux0:") == 0)
+	if (strcmp(path, "app0:") == 0)
 		return 1;
 	else
 		return 0;
@@ -401,7 +400,10 @@ struct tm *localtime_hook(time_t *timer) {
 
 int check_kubridge(void) {
 	int search_unk[2];
-	//return _vshKernelSearchModuleByName("kubridge", search_unk);
+
+	if (_vshKernelSearchModuleByName("kubridge", search_unk) <= 0)
+		return AL_ERROR_MAIN_KUBRIDGE_NOT_FOUND;
+
 	return 1;
 }
 
@@ -423,8 +425,9 @@ int module_start(SceSize args, const void * argp)
 	}
 #endif
 
-	if (check_kubridge() < 0)
-		printf("Error kubridge.skprx is not installed.");
+	ret = check_kubridge();
+	if (ret < 0)
+		goto show_error_and_die;
 
 	sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITALANALOG_WIDE);
 	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
@@ -433,11 +436,11 @@ int module_start(SceSize args, const void * argp)
 
 	ret = symt_load_deps();
 	if (ret < 0)
-		printf("symt_load_deps(): 0x%X\n", ret);
+		goto show_error_and_die;
 
 	ret = symt_create(&table, 4 * 1024, functable);
 	if (ret < 0)
-		printf("symt_create(): 0x%X\n", ret);
+		goto show_error_and_die;
 
 	symt_override(&table, "localtime", (uintptr_t)&localtime_hook);
 	symt_override(&table, "printf", (uintptr_t)&ret0);
@@ -445,10 +448,11 @@ int module_start(SceSize args, const void * argp)
 
 	ret = fsov_create();
 	if (ret < 0)
-		printf("fsov_create(): 0x%X\n", ret);
+		goto show_error_and_die;
 
-	if (so_load(&bc2_mod, SO_PATH) < 0)
-		printf("Error could not load %s.", SO_PATH);
+	ret = so_load(&bc2_mod, SO_PATH);
+	if (ret < 0)
+		goto show_error_and_die;
 
 	so_relocate(&bc2_mod);
 	so_resolve(&bc2_mod, table.funTable, table.count, 1);
@@ -461,6 +465,15 @@ int module_start(SceSize args, const void * argp)
 
 	SceUID thid = sceKernelCreateThread("main_thread", (SceKernelThreadEntry)main_thread, 64, 128 * 1024, 0, SCE_KERNEL_CPU_MASK_USER_0, NULL);
 	sceKernelStartThread(thid, 0, NULL);
+
+	return SCE_KERNEL_START_SUCCESS;
+
+show_error_and_die:
+
+	if (ret < -10000)
+		dlg_show_idlg_error("An error has occured: 0x%08X", ret);
+	else
+		dlg_show_idlg_error("An error has occured: %d", ret);
 
 	return SCE_KERNEL_START_SUCCESS;
 }

@@ -1,5 +1,5 @@
-#ifndef __SYMTABLE_H__
-#define __SYMTABLE_H__
+#ifndef __FS_OVERLAY_H__
+#define __FS_OVERLAY_H__
 
 int fsov_create();
 
