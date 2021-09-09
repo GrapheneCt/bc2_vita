@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1525
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bc2_vita", "bc2_vita\bc2_vita.vcxproj", "{03837E31-72C7-42E8-8751-31E650036F8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|PSVita = Debug|PSVita
+		Release|PSVita = Release|PSVita
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03837E31-72C7-42E8-8751-31E650036F8B}.Debug|PSVita.ActiveCfg = Debug|PSVita
+		{03837E31-72C7-42E8-8751-31E650036F8B}.Debug|PSVita.Build.0 = Debug|PSVita
+		{03837E31-72C7-42E8-8751-31E650036F8B}.Release|PSVita.ActiveCfg = Release|PSVita
+		{03837E31-72C7-42E8-8751-31E650036F8B}.Release|PSVita.Build.0 = Release|PSVita
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {28D3C6B4-2DBF-4CAB-ABED-AEA2ABD89019}
+	EndGlobalSection
+EndGlobal
