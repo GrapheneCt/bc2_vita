@@ -163,7 +163,8 @@ static char *newString(const char *s)
 
 int symt_append(Symtable *table, const char *symbol, uintptr_t func)
 {
-	//TODO: add size check here
+	if (table->count * sizeof(DynLibFunction) > table->size)
+		return AL_ERROR_SYMT_TABLE_SIZE;
 
 	table->funTable[table->count].symbol = newString(symbol);
 	table->funTable[table->count].func = func;
