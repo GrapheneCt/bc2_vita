@@ -10,13 +10,6 @@ The port works by loading the official Android ARMv6 executable in memory, resol
 
 In order to properly install the game, you'll have to follow these steps precisely:
 
-- Install [kubridge](https://github.com/TheOfficialFloW/kubridge/releases/) by copying `kubridge.skprx` to your taiHEN plugins folder (usually `ux0:tai`) and adding entry to your `config.txt` under `*KERNEL`:
-  
-```
-  *KERNEL
-  ux0:tai/kubridge.skprx
-```
-
 - Obtain your copy of *Battlefield: Bad Company 2* legally from the Amazon store in form of an `.apk` file and one or more `.obb` files (usually located inside the `/sdcard/android/obb/bc2/`) folder. [You can get all the required files directly from your phone](https://stackoverflow.com/questions/11012976/how-do-i-get-the-apk-of-an-installed-app-without-root-access) or by using an apk extractor you can find in the play store. The apk can be extracted with whatever Zip extractor you prefer (eg: WinZip, WinRar, etc...) since apk is basically a zip file. You can rename `.apk` to `.zip` to open them with your default zip extractor.
 - Copy the `/sdcard/android/obb/bc2/` folder to `ux0:data/bc2`.
 - Open the apk and extract `libbc2.so` from the `lib/armeabi` folder to `ux0:data/bc2`.
