@@ -14,9 +14,6 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="so_util.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="symtable.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -27,6 +24,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dialog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="so_util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -64,5 +64,10 @@
     <ClInclude Include="dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="so_util_vm.c">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

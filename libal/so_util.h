@@ -6,6 +6,14 @@
 
 #define ALIGN_MEM(x, align) (((x) + ((align) - 1)) & ~((align) - 1))
 
+#ifdef LOADER_USE_CDLG
+#define RX_MEMBLOCK		SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_RX
+#define RW_MEMBLOCK		SCE_KERNEL_MEMBLOCK_TYPE_USER_CDIALOG_RW
+#else
+#define RX_MEMBLOCK		SCE_KERNEL_MEMBLOCK_TYPE_USER_RX
+#define RW_MEMBLOCK		SCE_KERNEL_MEMBLOCK_TYPE_USER_RW
+#endif
+
 typedef struct {
 	SceUID text_blockid, data_blockid;
 	uintptr_t text_base, data_base;

@@ -7,7 +7,6 @@
  */
 
 #include <kernel.h>
-#include <kubridge.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +16,8 @@
 #include "so_util.h"
 #include "al_error.h"
 
+int sceKernelFreeMemBlockForVM(SceUID mbId);
+
 int so_hook_thumb(uintptr_t addr, uintptr_t dst)
 {
 	if (addr == 0 || dst == 0)
@@ -25,13 +26,13 @@ int so_hook_thumb(uintptr_t addr, uintptr_t dst)
 	addr &= ~1;
 	if (addr & 2) {
 		uint16_t nop = 0xbf00;
-		kuKernelCpuUnrestrictedMemcpy((void *)addr, &nop, sizeof(nop));
+		memcpy((void *)addr, &nop, sizeof(nop));
 		addr += 2;
 	}
 	uint32_t hook[2];
 	hook[0] = 0xf000f8df; // LDR PC, [PC]
 	hook[1] = dst;
-	kuKernelCpuUnrestrictedMemcpy((void *)addr, hook, sizeof(hook));
+	memcpy((void *)addr, hook, sizeof(hook));
 
 	return AL_OK;
 }
@@ -44,7 +45,7 @@ int so_hook_arm(uintptr_t addr, uintptr_t dst)
 	uint32_t hook[2];
 	hook[0] = 0xe51ff004; // LDR PC, [PC, #-0x4]
 	hook[1] = dst;
-	kuKernelCpuUnrestrictedMemcpy((void *)addr, hook, sizeof(hook));
+	memcpy((void *)addr, hook, sizeof(hook));
 
 	return AL_OK;
 }
@@ -76,7 +77,7 @@ int so_flush_caches(so_module *mod)
 	if (mod == NULL)
 		return AL_ERROR_INVALID_POINTER;
 
-	kuKernelFlushCaches((void *)mod->text_base, mod->text_size);
+	sceKernelSyncVMDomain(mod->text_blockid, (void *)mod->text_base, mod->text_size);
 
 	return AL_OK;
 }
@@ -86,8 +87,8 @@ int so_load(so_module *mod, const char *filename)
 	int res = 0;
 	uintptr_t data_addr = 0;
 	SceUID so_blockid;
-	void *so_data;
-	size_t so_size;
+	void *so_data, *prog_data;
+	size_t so_size, exec_size;
 
 	if (mod == NULL || filename == NULL)
 		return AL_ERROR_INVALID_POINTER;
@@ -115,6 +116,15 @@ int so_load(so_module *mod, const char *filename)
 		goto err_free_so;
 	}
 
+	exec_size = ALIGN_MEM(so_size, 1 * 1024 * 1024);
+	res = mod->text_blockid = sceKernelAllocMemBlockForVM("AL::SoUtil::RwxBlock", exec_size);
+	if (res < 0)
+		goto err_free_so;
+
+	sceKernelGetMemBlockBase(mod->text_blockid, &prog_data);
+
+	sceKernelOpenVMDomain();
+
 	mod->ehdr = (Elf32_Ehdr *)so_data;
 	mod->phdr = (Elf32_Phdr *)((uintptr_t)so_data + mod->ehdr->e_phoff);
 	mod->shdr = (Elf32_Shdr *)((uintptr_t)so_data + mod->ehdr->e_shoff);
@@ -123,20 +133,10 @@ int so_load(so_module *mod, const char *filename)
 
 	for (int i = 0; i < mod->ehdr->e_phnum; i++) {
 		if (mod->phdr[i].p_type == PT_LOAD) {
-			void *prog_data;
 			size_t prog_size;
 
 			if ((mod->phdr[i].p_flags & PF_X) == PF_X) {
 				prog_size = ALIGN_MEM(mod->phdr[i].p_memsz, mod->phdr[i].p_align);
-
-				SceKernelAllocMemBlockKernelOpt opt;
-				memset(&opt, 0, sizeof(SceKernelAllocMemBlockKernelOpt));
-				opt.size = sizeof(SceKernelAllocMemBlockKernelOpt);
-				res = mod->text_blockid = kuKernelAllocMemBlock("AL::SoUtil::RxBlock", SCE_KERNEL_MEMBLOCK_TYPE_USER_RX, prog_size, &opt);
-				if (res < 0)
-					goto err_free_so;
-
-				sceKernelGetMemBlockBase(mod->text_blockid, &prog_data);
 
 				mod->phdr[i].p_vaddr += (Elf32_Addr)prog_data;
 
@@ -147,21 +147,8 @@ int so_load(so_module *mod, const char *filename)
 			} else {
 				if (data_addr == 0) {
 					res = AL_ERROR_SO_UTIL_EXEC_SEG_MISSING;
-					goto err_free_so;
-				}
-
-				prog_size = ALIGN_MEM(mod->phdr[i].p_memsz + mod->phdr[i].p_vaddr - (data_addr - mod->text_base), mod->phdr[i].p_align);
-
-				SceKernelAllocMemBlockKernelOpt opt;
-				memset(&opt, 0, sizeof(SceKernelAllocMemBlockKernelOpt));
-				opt.size = sizeof(SceKernelAllocMemBlockKernelOpt);
-				opt.attr = 0x1;
-				opt.field_C = (SceUInt32)data_addr;
-				res = mod->data_blockid = kuKernelAllocMemBlock("AL::SoUtil::RwBlock", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, prog_size, &opt);
-				if (res < 0)
 					goto err_free_text;
-
-				sceKernelGetMemBlockBase(mod->data_blockid, &prog_data);
+				}
 
 				mod->phdr[i].p_vaddr += (Elf32_Addr)mod->text_base;
 
@@ -169,12 +156,7 @@ int so_load(so_module *mod, const char *filename)
 				mod->data_size = mod->phdr[i].p_memsz;
 			}
 
-			char *zero = malloc(prog_size);
-			memset(zero, 0, prog_size);
-			kuKernelCpuUnrestrictedMemcpy(prog_data, zero, prog_size);
-			free(zero);
-
-			kuKernelCpuUnrestrictedMemcpy((void *)mod->phdr[i].p_vaddr, (void *)((uintptr_t)so_data + mod->phdr[i].p_offset), mod->phdr[i].p_filesz);
+			memcpy((void *)mod->phdr[i].p_vaddr, (void *)((uintptr_t)so_data + mod->phdr[i].p_offset), mod->phdr[i].p_filesz);
 		}
 	}
 
@@ -228,9 +210,8 @@ int so_load(so_module *mod, const char *filename)
 	return AL_OK;
 
 err_free_data:
-	sceKernelFreeMemBlock(mod->data_blockid);
 err_free_text:
-	sceKernelFreeMemBlock(mod->text_blockid);
+	sceKernelFreeMemBlockForVM(mod->text_blockid);
 err_free_so:
 	sceKernelFreeMemBlock(so_blockid);
 
@@ -276,6 +257,8 @@ int so_relocate(so_module *mod)
 
 int so_resolve(so_module *mod, DynLibFunction *funcs, int num_funcs, int taint_missing_imports)
 {
+	int found = 0;
+
 	if (mod == NULL || funcs == NULL)
 		return AL_ERROR_INVALID_POINTER;
 
@@ -296,7 +279,7 @@ int so_resolve(so_module *mod, DynLibFunction *funcs, int num_funcs, int taint_m
 
 				//printf("  { \"%s\", (uintptr_t)&%s },\n", mod->dynstr + sym->st_name, mod->dynstr + sym->st_name);
 
-				int found = 0;
+				found = 0;
 
 				for (int j = 0; j < num_funcs; j++) {
 					if (strcmp(mod->dynstr + sym->st_name, funcs[j].symbol) == 0) {
@@ -356,7 +339,7 @@ int so_hash(const uint8_t *name, uint32_t *hash)
 
 int so_symbol(so_module *mod, const char *symbol, uintptr_t *res)
 {
-	uint32_t hash;
+	uint32_t hash = 0;
 
 	if (mod == NULL || symbol == NULL || res == NULL)
 		return AL_ERROR_INVALID_POINTER;

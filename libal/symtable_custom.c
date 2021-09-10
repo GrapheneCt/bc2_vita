@@ -7,7 +7,9 @@
  */
 
 #include <kernel.h>
+#include <kernel/rng.h>
 #include <net.h>
+#include <errno.h>
 
 /* CUSTOM FUNC IMPL */
 
@@ -28,14 +30,21 @@ int __android_log_print(int prio, const char *tag, const char *fmt, ...)
 
 long lrand48()
 {
-	unsigned int res;
-	sceKernelGetRandomNumber(&res, 4);
+	unsigned int res = 2147483649;
+	while (res > 2147483648) {
+		sceKernelGetRandomNumber(&res, 4);
+	}
+
 	return res;
 }
 
 int *__errno()
 {
-	return _sceLibcErrnoLoc();
+	int *libcErrnoLoc = _sceLibcErrnoLoc();
+	int *netErrnoLoc = sceNetErrnoLoc();
+	*libcErrnoLoc |= *netErrnoLoc;
+
+	return libcErrnoLoc;
 }
 
 char *getcwd(char *buf, size_t size)

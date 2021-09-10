@@ -27,6 +27,8 @@
 #include <errno.h>
 #include <ctype.h>
 
+#include <taihen.h>
+
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 #include <EGL/egl.h>
@@ -389,7 +391,8 @@ void patch_game(void)
 	so_hook_thumb_sym(&bc2_mod, "Android_KarismaBridge_UnlockSound", (uintptr_t)&ret0);
 }
 
-struct tm *localtime_hook(time_t *timer) {
+struct tm *localtime_hook(time_t *timer)
+{
 	struct tm *res = localtime(timer);
 	if (res)
 		return res;
@@ -398,13 +401,28 @@ struct tm *localtime_hook(time_t *timer) {
 	return localtime(timer);
 }
 
-int check_kubridge(void) {
+int check_kubridge(void)
+{
+	int ret = 0;
 	int search_unk[2];
+	char tid[0x10];
+	char localPath[SCE_IO_MAX_PATH_BUFFER_SIZE];
 
-	if (_vshKernelSearchModuleByName("kubridge", search_unk) <= 0)
-		return AL_ERROR_MAIN_KUBRIDGE_NOT_FOUND;
+	if (_vshKernelSearchModuleByName("kubridge", search_unk) <= 0) {
+		memset(localPath, 0, SCE_IO_MAX_PATH_BUFFER_SIZE);
+		sceAppMgrAppParamGetString(SCE_KERNEL_PROCESS_ID_SELF, 12, tid, sizeof(tid));
+		sceClibSnprintf(localPath, SCE_IO_MAX_PATH_BUFFER_SIZE, "ux0:app/%s/module/kubridge.skprx", tid);
+		ret = taiLoadStartKernelModule(localPath, 0, NULL, 0);
+		if (ret <= 0) {
+			memset(localPath, 0, SCE_IO_MAX_PATH_BUFFER_SIZE);
+			sceClibSnprintf(localPath, SCE_IO_MAX_PATH_BUFFER_SIZE, "ux0:app/%s/module/kubridge.suprx", tid);
+			ret = taiLoadStartKernelModule(localPath, 0, NULL, 0);
+			if (ret <= 0)
+				return AL_ERROR_MAIN_KUBRIDGE_NOT_FOUND;
+		}
+	}
 
-	return 1;
+	return AL_OK;
 }
 
 int module_start(SceSize args, const void * argp)

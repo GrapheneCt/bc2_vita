@@ -114,6 +114,7 @@ void send();
 void rmdir();
 void mkdir();
 void unlink();
+void fstat();
 
 int stat(const char *path, void *buf);
 
@@ -138,7 +139,6 @@ void *readdir(void *dirp)
 
 #ifdef SYMT_HAS_TRILITHIUM_POSIX
 // Trilithium POSIX
-void fstat();
 void connect();
 void gethostbyname();
 void getsockname();
@@ -279,22 +279,22 @@ int symt_create(Symtable *table, unsigned int size, uintptr_t *newlibFunctable)
 	symt_append(table, "__aeabi_uldivmod", (uintptr_t)&__aeabi_uldivmod);
 	symt_append(table, "__aeabi_ldivmod", (uintptr_t)&__aeabi_ldivmod);
 
-	symt_append(table, "__aeabi_d2f", __aeabi_d2f);
-	symt_append(table, "__aeabi_d2ulz", __aeabi_d2ulz);
-	symt_append(table, "__aeabi_dcmpgt", __aeabi_dcmpgt);
-	symt_append(table, "__aeabi_dmul", __aeabi_dmul);
-	symt_append(table, "__aeabi_f2d", __aeabi_f2d);
-	symt_append(table, "__aeabi_f2iz", __aeabi_f2iz);
-	symt_append(table, "__aeabi_f2ulz", __aeabi_f2ulz);
-	symt_append(table, "__aeabi_fadd", __aeabi_fadd);
-	symt_append(table, "__aeabi_fcmpge", __aeabi_fcmpge);
-	symt_append(table, "__aeabi_fcmpgt", __aeabi_fcmpgt);
-	symt_append(table, "__aeabi_fcmple", __aeabi_fcmple);
-	symt_append(table, "__aeabi_fcmplt", __aeabi_fcmplt);
-	symt_append(table, "__aeabi_fdiv", __aeabi_fdiv);
-	symt_append(table, "__aeabi_fsub", __aeabi_fsub);
-	symt_append(table, "__aeabi_l2d", __aeabi_l2d);
-	symt_append(table, "__aeabi_l2f", __aeabi_l2f);
+	symt_append(table, "__aeabi_d2f", (uintptr_t)&__aeabi_d2f);
+	symt_append(table, "__aeabi_d2ulz", (uintptr_t)&__aeabi_d2ulz);
+	symt_append(table, "__aeabi_dcmpgt", (uintptr_t)&__aeabi_dcmpgt);
+	symt_append(table, "__aeabi_dmul", (uintptr_t)&__aeabi_dmul);
+	symt_append(table, "__aeabi_f2d", (uintptr_t)&__aeabi_f2d);
+	symt_append(table, "__aeabi_f2iz", (uintptr_t)&__aeabi_f2iz);
+	symt_append(table, "__aeabi_f2ulz", (uintptr_t)&__aeabi_f2ulz);
+	symt_append(table, "__aeabi_fadd", (uintptr_t)&__aeabi_fadd);
+	symt_append(table, "__aeabi_fcmpge", (uintptr_t)&__aeabi_fcmpge);
+	symt_append(table, "__aeabi_fcmpgt", (uintptr_t)&__aeabi_fcmpgt);
+	symt_append(table, "__aeabi_fcmple", (uintptr_t)&__aeabi_fcmple);
+	symt_append(table, "__aeabi_fcmplt", (uintptr_t)&__aeabi_fcmplt);
+	symt_append(table, "__aeabi_fdiv", (uintptr_t)&__aeabi_fdiv);
+	symt_append(table, "__aeabi_fsub", (uintptr_t)&__aeabi_fsub);
+	symt_append(table, "__aeabi_l2d", (uintptr_t)&__aeabi_l2d);
+	symt_append(table, "__aeabi_l2f", (uintptr_t)&__aeabi_l2f);
 
 #ifdef SYMT_HAS_SCE_PSP2COMPAT
 	symt_append(table, "close", (uintptr_t)&close);
@@ -320,10 +320,10 @@ int symt_create(Symtable *table, unsigned int size, uintptr_t *newlibFunctable)
 	symt_append(table, "readdir", (uintptr_t)&readdir);
 	symt_append(table, "stat", (uintptr_t)&stat);
 	symt_append(table, "lstat", (uintptr_t)&lstat);
+	symt_append(table, "fstat", (uintptr_t)&fstat);
 #endif
 
 #ifdef SYMT_HAS_TRILITHIUM_POSIX
-	symt_append(table, "fstat", (uintptr_t)&fstat);
 	symt_append(table, "connect", (uintptr_t)&connect);
 	symt_append(table, "gethostbyname", (uintptr_t)&gethostbyname);
 	symt_append(table, "getsockname", (uintptr_t)&getsockname);
