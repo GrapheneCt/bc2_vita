@@ -17,7 +17,17 @@ In order to properly install the game, you'll have to follow these steps precise
 
 ## Build Instructions (For Developers)
 
---
+Libal uses various modules and features to provide compatability with Android. Following options can be defined to alter the library behaviour:
+
+``SYMT_HAS_PVR_PSP2_GLES1`` - application uses PVR_PSP2 GLES1 GPU driver. Application must provide following modules in app0:module: ``libgpu_es4_ext.suprx, libIMGEGL.suprx, libpvrPSP2_WSEGL.suprx, libGLESv1_CM.suprx``
+
+``SYMT_HAS_PVR_PSP2_GLES2`` - application uses PVR_PSP2 GLES2 GPU driver. Application must provide following modules in app0:module: ``libgpu_es4_ext.suprx, libIMGEGL.suprx, libpvrPSP2_WSEGL.suprx, libGLESv2.suprx``
+
+``SYMT_HAS_SCE_PSP2COMPAT`` - application uses ScePsp2Compat module for POSIX compatability
+
+``SYMT_HAS_TRILITHIUM_POSIX`` - application uses Trilithium POSIX module for POSIX compatability. Application must provide following modules in app0:module: ``posix.suprx``
+
+``LOADER_USE_CDLG`` - load .so into executable memory allocated from CDLG physical partition. Recommended to use if .so requires less than 9MB of memory and application is not using common dialog
 
 ## Credits
 
