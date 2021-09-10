@@ -23,6 +23,8 @@ Libal uses various modules and features to provide compatability with Android. F
 
 ``SYMT_HAS_PVR_PSP2_GLES2`` - application uses PVR_PSP2 GLES2 GPU driver. Application must provide following modules in app0:module: ``libgpu_es4_ext.suprx, libIMGEGL.suprx, libpvrPSP2_WSEGL.suprx, libGLESv2.suprx``
 
+``SYMT_HAS_VITAGL`` - application uses vitaGL. Application must provide following modules in app0:module: ``libvgl.suprx``
+
 ``SYMT_HAS_SCE_PSP2COMPAT`` - application uses ScePsp2Compat module for POSIX compatability
 
 ``SYMT_HAS_TRILITHIUM_POSIX`` - application uses Trilithium POSIX module for POSIX compatability. Application must provide following modules in app0:module: ``posix.suprx``
